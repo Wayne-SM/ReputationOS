@@ -269,5 +269,10 @@ Plans:
 ### Phase 10: Production Hardening & Scalability
 
 **Status:** Not Started  
-**Objective:** Free-tier deployment guides (Render / Vercel / Supabase), security checklist verification, and final regression testing.
-**Dependencies:** Phase 1–6
+**Goal:** Free-tier deployment guides (Render / Vercel / Supabase), security checklist verification, and final regression testing.
+**Depends on:** Phase 1–6
+**Plans:** 1 plan
+
+Plans:
+- [ ] 10-01: Zero-cost deployment runbook, Docker containerization, static routing rules, and monorepo verification
+

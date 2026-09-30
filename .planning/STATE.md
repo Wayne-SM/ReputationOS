@@ -4,7 +4,7 @@
 
 **Project:** Reputation OS  
 **Milestone:** v1.0 — Lean MVP (₹0 Infrastructure Cost)  
-**Status:** In Progress (Phase 6 Complete)  
+**Status:** In Progress (Phase 6 Complete, Phase 10 Planned)  
 **Last Updated:** 2026-09-30  
 
 ## Phase Progress
@@ -20,7 +20,7 @@
 | 7 | AI Insights | Deferred (Post-MVP) | — | — |
 | 8 | WhatsApp Integration | Deferred (Post-MVP) | — | — |
 | 9 | Billing & SaaS Plans | Deferred (Post-MVP) | — | — |
-| 10 | Production Hardening & Scalability | Not Started | — | — |
+| 10 | Production Hardening & Scalability | 📋 Planned | 2026-09-30 | — |
 
 ## Planning Artifacts
 
@@ -56,6 +56,7 @@ None currently.
 
 ## Next Action
 
-Plan and execute Phase 10: Production Hardening & Scalability
+Execute Phase 10: Production Hardening & Scalability
 - Zero-cost deployment runbook & production configurations (Render, Vercel, Neon/Supabase)
-- Final regression testing & security checklist verification
+- Docker multi-stage containerization & static SPA rewrite rules
+- Final monorepo regression testing & security checklist verification
