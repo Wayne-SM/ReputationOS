@@ -86,6 +86,12 @@ export function SourcesPage() {
             >
               QR & Links
             </Link>
+            <Link
+              to="/settings"
+              className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              Settings
+            </Link>
             <button
               onClick={() => logout()}
               className="btn-secondary text-xs py-1.5 px-3 ml-2"

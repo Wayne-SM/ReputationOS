@@ -78,15 +78,21 @@ export interface HealthStatus {
 
 // ── Dashboard Types ────────────────────────────────────────
 
-/** Reputation overview metrics */
-export interface ReputationOverview {
-  googleRating: number | null;
-  googleReviewCount: number;
-  newReviewsCount: number;
-  feedbackCount: number;
+/** Reputation overview metrics (The 7 essential MVP metrics) */
+export interface DashboardMetrics {
   receptionScans: number;
   instagramVisits: number;
+  feedbackSubmissions: number;
   googleReviewClicks: number;
+  totalFeedback: number;
+  averageRating: number | null;
+}
+
+/** Complete Dashboard Overview response */
+export interface DashboardOverview {
+  metrics: DashboardMetrics;
+  ratingDistribution: RatingDistribution[];
+  recentFeedback: FeedbackItem[];
 }
 
 /** Rating distribution */
@@ -114,7 +120,49 @@ export interface FeedbackItem {
   isRead: boolean;
   googleReviewClicked: boolean;
   customerName: string | null;
+  customerEmail?: string | null;
   createdAt: string;
+}
+
+/** Business Settings response */
+export interface BusinessSettingsData {
+  business: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logoUrl: string | null;
+    accentColor: string;
+    phone: string | null;
+    website: string | null;
+  };
+  googleReview: {
+    googlePlaceId: string | null;
+    googleReviewUrl: string | null;
+    googleRating: number | null;
+    googleReviewCount: number;
+  };
+  settings: {
+    feedbackWelcomeText: string;
+    feedbackThankYouText: string;
+    googleReviewCtaText: string;
+    collectContactInfo: boolean;
+    contactInfoRequired: boolean;
+  };
+}
+
+/** Business Settings update payload */
+export interface UpdateBusinessSettingsPayload {
+  name?: string;
+  accentColor?: string;
+  description?: string;
+  phone?: string;
+  website?: string;
+  googleReviewUrl?: string;
+  googlePlaceId?: string;
+  feedbackWelcomeText?: string;
+  feedbackThankYouText?: string;
+  googleReviewCtaText?: string;
 }
 
 /** Paginated response */
@@ -131,3 +179,4 @@ export interface ApiErrorResponse {
   error: string;
   details?: Record<string, string[]>;
 }
+

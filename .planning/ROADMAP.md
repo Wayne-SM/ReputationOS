@@ -8,7 +8,7 @@
 - [x] **Phase 2: Database Schema & Authentication** - Multi-tenant isolation, user/business registration, sessions, auth middleware
 - [x] **Phase 3: Customer Feedback Experience** - Public branded feedback page, star rating, universal Google review CTA
 - [x] **Phase 4: QR Code & Source Tracking** - Print-ready Reception QR and Instagram link generation and tracking (Zero Cost)
-- [ ] **Phase 5: Lean Business Dashboard** - The 7 essential MVP metrics, recent feedback, and business settings (Zero Cost)
+- [x] **Phase 5: Lean Business Dashboard** - The 7 essential MVP metrics, recent feedback, and business settings (Zero Cost)
 - [ ] **Phase 6: Provider Abstractions & Extensibility** - Pluggable provider interfaces for AI, WhatsApp, Stripe, and Email (No-Op fallbacks)
 - [ ] **Phase 7: AI Insights** - (POST-MVP / Postponed)
 - [ ] **Phase 8: WhatsApp Integration** - (POST-MVP / Postponed)
@@ -206,7 +206,7 @@ Plans:
 
 ### Phase 5: Lean Business Dashboard (MVP Scope)
 
-**Status:** Not Started  
+**Status:** Complete  
 **Goal:** Build the focused business dashboard with the 7 essential MVP metrics, recent customer feedback, and business settings.
 **Depends on:** Phase 4
 **Requirements:** FR-007, FR-008, FR-010, C-008, C-010
@@ -219,7 +219,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 05-01: Essential metrics API, feedback list with filters, business settings form, and premium dashboard UI
+- [x] 05-01: Essential metrics API, feedback list with filters, business settings form, and premium dashboard UI
 
 ---
 
