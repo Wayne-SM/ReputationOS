@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { api } from '../lib/api';
 import type { DashboardOverview } from '../../../shared/types/index.js';
 
 export function DashboardPage() {
@@ -14,15 +15,8 @@ export function DashboardPage() {
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const res = await fetch('/api/v1/dashboard/overview', {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const json: DashboardOverview = await res.json();
-          setData(json);
-        } else {
-          setError('Failed to load dashboard metrics');
-        }
+        const json = await api.get<DashboardOverview>('/dashboard/overview');
+        setData(json);
       } catch (err) {
         console.error('Failed to load dashboard:', err);
         setError('Network error while loading metrics');

@@ -82,6 +82,9 @@ async function start() {
   });
 }
 
-start().catch(console.error);
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  start().catch(console.error);
+}
 
 export { app };
+export default app;

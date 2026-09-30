@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { api } from '../lib/api';
+
+const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1';
 
 interface SourceDetails {
   sourceType: string;
@@ -29,13 +32,8 @@ export function SourcesPage() {
   useEffect(() => {
     async function loadSources() {
       try {
-        const res = await fetch('/api/v1/sources', {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        }
+        const json = await api.get<SourcesApiResponse>('/sources');
+        setData(json);
       } catch (err) {
         console.error('Failed to load sources:', err);
       } finally {
@@ -188,7 +186,7 @@ export function SourcesPage() {
               {/* Download Actions */}
               <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
                 <a
-                  href="/api/v1/sources/reception/qr.png"
+                  href={`${API_BASE}/sources/reception/qr.png`}
                   download={`${business?.slug}-reception-qr.png`}
                   className="btn-primary text-xs flex-1 text-center py-2.5 flex items-center justify-center gap-1.5"
                 >
@@ -198,7 +196,7 @@ export function SourcesPage() {
                   Download PNG (High-Res)
                 </a>
                 <a
-                  href="/api/v1/sources/reception/qr.svg"
+                  href={`${API_BASE}/sources/reception/qr.svg`}
                   download={`${business?.slug}-reception-qr.svg`}
                   className="btn-secondary text-xs flex-1 text-center py-2.5 flex items-center justify-center gap-1.5"
                 >

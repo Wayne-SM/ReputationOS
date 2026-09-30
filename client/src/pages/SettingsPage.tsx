@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { api } from '../lib/api';
 import type { BusinessSettingsData, UpdateBusinessSettingsPayload } from '../../../shared/types/index.js';
 
 export function SettingsPage() {
@@ -26,25 +27,18 @@ export function SettingsPage() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch('/api/v1/business/settings', {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const json: BusinessSettingsData = await res.json();
-          setData(json);
-          setName(json.business.name || '');
-          setAccentColor(json.business.accentColor || '#2563eb');
-          setDescription(json.business.description || '');
-          setPhone(json.business.phone || '');
-          setWebsite(json.business.website || '');
-          setGoogleReviewUrl(json.googleReview.googleReviewUrl || '');
-          setGooglePlaceId(json.googleReview.googlePlaceId || '');
-          setFeedbackWelcomeText(json.settings.feedbackWelcomeText || '');
-          setFeedbackThankYouText(json.settings.feedbackThankYouText || '');
-          setGoogleReviewCtaText(json.settings.googleReviewCtaText || '');
-        } else {
-          setErrorMessage('Failed to load business settings');
-        }
+        const json = await api.get<BusinessSettingsData>('/business/settings');
+        setData(json);
+        setName(json.business.name || '');
+        setAccentColor(json.business.accentColor || '#2563eb');
+        setDescription(json.business.description || '');
+        setPhone(json.business.phone || '');
+        setWebsite(json.business.website || '');
+        setGoogleReviewUrl(json.googleReview.googleReviewUrl || '');
+        setGooglePlaceId(json.googleReview.googlePlaceId || '');
+        setFeedbackWelcomeText(json.settings.feedbackWelcomeText || '');
+        setFeedbackThankYouText(json.settings.feedbackThankYouText || '');
+        setGoogleReviewCtaText(json.settings.googleReviewCtaText || '');
       } catch (err) {
         console.error('Failed to load settings:', err);
         setErrorMessage('Network error while loading settings');
@@ -76,30 +70,12 @@ export function SettingsPage() {
     };
 
     try {
-      const res = await fetch('/api/v1/business/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        if (json.details) {
-          const firstError = Object.values(json.details)[0];
-          setErrorMessage(Array.isArray(firstError) ? firstError[0] : json.error);
-        } else {
-          setErrorMessage(json.error || 'Failed to save settings');
-        }
-        return;
-      }
-
+      await api.patch('/business/settings', payload);
       setSaveSuccess('Settings saved successfully!');
       setTimeout(() => setSaveSuccess(null), 4000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving settings:', err);
-      setErrorMessage('Network error while saving settings');
+      setErrorMessage(err.message || 'Network error while saving settings');
     } finally {
       setIsSaving(false);
     }

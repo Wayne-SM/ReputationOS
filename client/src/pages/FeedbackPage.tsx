@@ -3,6 +3,8 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { StarRating } from '../components/feedback/StarRating';
 import type { PublicBusinessInfo } from '@shared/types';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 export function FeedbackPage() {
   const { businessSlug } = useParams<{ businessSlug: string }>();
   const [searchParams] = useSearchParams();
@@ -47,7 +49,7 @@ export function FeedbackPage() {
     async function loadBusiness() {
       if (!businessSlug) return;
       try {
-        const res = await fetch(`/public/r/${encodeURIComponent(businessSlug)}?source=${source}`);
+        const res = await fetch(`${API_BASE_URL}/public/r/${encodeURIComponent(businessSlug)}?source=${source}`);
         if (!res.ok) {
           setNotFound(true);
           return;
@@ -76,7 +78,7 @@ export function FeedbackPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`/public/r/${encodeURIComponent(businessSlug!)}/feedback`, {
+      const res = await fetch(`${API_BASE_URL}/public/r/${encodeURIComponent(businessSlug!)}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -113,7 +115,7 @@ export function FeedbackPage() {
     setHasClickedGoogle(true);
 
     // Track click event asynchronously
-    fetch(`/public/r/${encodeURIComponent(businessSlug!)}/click-google`, {
+    fetch(`${API_BASE_URL}/public/r/${encodeURIComponent(businessSlug!)}/click-google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

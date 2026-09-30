@@ -1,4 +1,4 @@
-const API_BASE = '/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1';
 
 class ApiError extends Error {
   constructor(
@@ -23,7 +23,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new ApiError(response.status, error.message || 'Request failed');
+    throw new ApiError(response.status, error.message || error.error || 'Request failed');
   }
 
   if (response.status === 204) {
