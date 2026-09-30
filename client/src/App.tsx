@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { FeedbackPage } from './pages/FeedbackPage';
 
 function HomePage() {
   const { isAuthenticated, business } = useAuth();
@@ -68,6 +69,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/r/:businessSlug" element={<FeedbackPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>

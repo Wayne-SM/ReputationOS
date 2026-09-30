@@ -6,6 +6,7 @@ import { env } from './lib/env.js';
 import { verifyConnection } from './db/index.js';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
+import publicRouter from './routes/public.js';
 
 const app = express();
 
@@ -41,6 +42,8 @@ app.use(express.urlencoded({ extended: true }));
 // ── API Routes ──────────────────────────────────────────────
 app.use('/api/v1', healthRouter);
 app.use('/api/v1/auth', authLimiter, authRouter);
+app.use('/public', publicRouter);
+app.use('/api/v1/public', publicRouter);
 
 // ── 404 Handler ─────────────────────────────────────────────
 app.use((_req, res) => {
