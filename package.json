@@ -19,6 +19,7 @@
     "db:generate": "cd server && npx drizzle-kit generate",
     "db:push": "cd server && npx drizzle-kit push",
     "db:studio": "cd server && npx drizzle-kit studio",
+    "db:seed": "cd server && npm run db:seed",
     "typecheck": "cd client && npx tsc --noEmit && cd ../server && npx tsc --noEmit"
   },
   "devDependencies": {

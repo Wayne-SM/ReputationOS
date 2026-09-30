@@ -2,10 +2,30 @@
 
 ## Milestone: v1.0 — Core Platform
 
+## Phases
+
+- [x] **Phase 1: Foundation & Project Setup** - Scaffolding, monorepo, 13-table schema, dev environment
+- [x] **Phase 2: Database Schema & Authentication** - Multi-tenant isolation, user/business registration, sessions, auth middleware
+- [ ] **Phase 3: Customer Feedback Experience** - Public branded feedback page, star rating, universal Google review CTA
+- [ ] **Phase 4: QR Code & Source Tracking** - Reception QR and Instagram link generation and tracking
+- [ ] **Phase 5: Business Dashboard** - Core metrics, feedback management, business settings
+- [ ] **Phase 6: Reputation Analytics** - Funnel metrics, conversion tracking, trends
+- [ ] **Phase 7: AI Insights** - Review response assistance, feedback summarization
+- [ ] **Phase 8: WhatsApp Integration** - Review request automation channel
+- [ ] **Phase 9: Billing & SaaS Plans** - Subscriptions, Stripe integration, plan limits
+- [ ] **Phase 10: Security, Testing & Production Hardening** - Security audits, E2E tests, CI/CD
+
+---
+
 ### Phase 1: Foundation & Project Setup
 
-**Status:** Not Started  
-**Objective:** Initialize the project with production-ready tooling, project structure, and development environment.
+**Status:** Complete  
+**Goal:** Initialize the project with production-ready tooling, project structure, and development environment.
+**Depends on:** Nothing (first phase)
+**Plans:** 1 plan
+
+Plans:
+- [x] 01-01: Foundation & Project Setup Scaffolding
 
 **Requirements:** FR-001 (partial)  
 **Dependencies:** None
@@ -39,11 +59,20 @@
 
 ### Phase 2: Database Schema & Authentication
 
-**Status:** Not Started  
-**Objective:** Implement the complete database schema and full authentication flow with multi-tenant isolation.
+**Status:** Complete  
+**Goal:** Implement the complete database schema and full authentication flow with multi-tenant isolation.
+**Depends on:** Phase 1
+**Requirements:** FR-001, FR-002
+**Success Criteria** (what must be TRUE):
+  1. User registration creates user, business, business membership (owner), settings, and review sources in an atomic flow
+  2. User can log in and receives an httpOnly session cookie
+  3. Protected routes enforce authentication and reject invalid or expired sessions
+  4. Tenant isolation middleware derives business context strictly from session, rejecting unauthorized cross-tenant access
+  5. Password hashing uses crypto.scrypt with individual salt and timing-safe comparison
+**Plans:** 1 plan
 
-**Requirements:** FR-001, FR-002  
-**Dependencies:** Phase 1
+Plans:
+- [x] 02-01: Multi-tenant database operations, auth service, session management, auth routes, and tenant middleware
 
 **Scope:**
 - Design and implement normalized database schema
