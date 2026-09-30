@@ -25,45 +25,30 @@
 | TypeScript | 5.x | Type safety |
 | Drizzle ORM | 0.3x.x | Database ORM & migrations |
 | Zod | 3.x | Input validation |
-| Lucia Auth | 3.x | Authentication (sessions, password hashing) |
+| Lucia / Custom Sessions | 3.x / Native | Database-backed session auth with native crypto.scrypt |
 | express-rate-limit | 7.x | Rate limiting |
 | cors | 2.x | CORS middleware |
 | helmet | 7.x | Security headers |
 | dotenv | 16.x | Environment variables |
 
-### Database
+### ₹0 Infrastructure Cost Architecture (MVP Testing)
 
-| Technology | Purpose |
-|------------|----------|
-| PostgreSQL 16 | Primary database |
-| Drizzle Kit | Schema migrations |
+| Layer | ₹0 Selection | Deployment Option | Cost |
+|-------|--------------|-------------------|------|
+| **Database** | PostgreSQL (Drizzle ORM) | Local dev / Supabase Free / Neon Free | **₹0** |
+| **Backend API** | Node.js + Express (Dockerizable) | Local dev / Render Free / Fly.io Free | **₹0** |
+| **Frontend SPA** | React 18 + Vite (Static export) | Cloudflare Pages / Vercel Free / Netlify Free | **₹0** |
+| **Telemetry** | First-party PostgreSQL events | Integrated in primary database | **₹0** |
+| **QR Engine** | `qrcode` NPM library | In-process server generation | **₹0** |
+| **AI / WhatsApp / Billing** | Provider Abstraction (No-Op) | In-process mock / console fallback | **₹0** |
 
-### QR Generation
+### Provider Abstraction Layer (Zero Cost by Default)
 
-| Technology | Purpose |
-|------------|----------|
-| qrcode | Server-side QR code generation (PNG, SVG) |
-
-### Development
-
-| Technology | Purpose |
-|------------|----------|
-| Vitest | Unit & integration testing |
-| Supertest | HTTP endpoint testing |
-| ESLint | Code linting |
-| Prettier | Code formatting |
-| tsx | TypeScript execution for dev |
-| concurrently | Run frontend + backend in dev |
-
-### Future (Not Installed Until Needed)
-
-| Technology | Phase | Purpose |
-|------------|-------|---------|
-| OpenAI SDK | Phase 7 | AI-powered insights |
-| Stripe SDK | Phase 9 | Billing & subscriptions |
-| WhatsApp Business API | Phase 8 | Message automation |
-| Playwright | Phase 10 | E2E testing |
-| Resend / Nodemailer | Phase 2 | Email (password reset) |
+Future paid third-party dependencies are decoupled via interfaces located in `server/src/providers/`:
+- **`IAiProvider`**: Default `NoOpAiProvider` (returns null / safe fallback). Ready for OpenAI / Gemini when funded.
+- **`IMessagingProvider`**: Default `ConsoleMessagingProvider` (logs formatted message). Ready for WhatsApp Business API when needed.
+- **`IBillingProvider`**: Default `FreeTierBillingProvider` (grants active access). Ready for Stripe when monetizing.
+- **`IEmailProvider`**: Default `ConsoleEmailProvider` (logs email payload). Ready for Resend / SendGrid when transactional emails needed.
 
 ## Stack Rationale
 

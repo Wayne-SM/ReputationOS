@@ -45,15 +45,18 @@
 - Downloadable in print-ready formats
 - QR management page in dashboard
 
-### FR-007: Business Dashboard
-- Reputation overview: Google rating, review count, new reviews, feedback count
-- Source metrics: Reception QR scans, Instagram visits
-- Google activity: review CTA clicks
-- Conversion/funnel metrics
-- Recent customer feedback list
-- Rating distribution chart
-- Reputation trends over time
-- Meaningful visual hierarchy, not excessive cards
+### FR-007: Business Dashboard (MVP Scope)
+- Essential metrics overview:
+  1. Reception QR scans
+  2. Instagram visits
+  3. Feedback submissions count
+  4. Google review CTA clicks
+  5. Rating distribution (1–5 stars)
+  6. Total feedback count
+  7. Basic recent customer feedback list
+- Filter feedback by source (reception vs instagram) and rating
+- Minimalist, high-density SaaS design (inspired by Linear/Stripe/Apple)
+- Zero bloated cards or vanity metrics
 
 ### FR-008: Feedback Management
 - View all customer feedback
@@ -62,38 +65,32 @@
 - Mark feedback as read/unread
 - Export feedback data
 
-### FR-009: Analytics & Funnel Tracking
-- Track events: page_view, rating_selected, feedback_started, feedback_submitted, google_review_clicked
-- Track source per event: reception, instagram
-- Funnel visualization: views → ratings → feedback → Google clicks
-- Time-based analytics (daily, weekly, monthly)
-- Privacy-conscious (no unnecessary PII collection)
+### FR-009: Lightweight First-Party Analytics (MVP Scope)
+- First-party telemetry stored in existing `analytics_events` table (no paid analytics tools)
+- Tracks: `feedback_page_view`, `rating_selected`, `feedback_submitted`, `google_review_clicked`
+- Source tracking (`reception`, `instagram`)
+- Postponed: cohort analysis, complex multi-step historical funnels, automated PDF generation
 
 ### FR-010: Business Settings
 - Configure business name, logo, brand accent color
 - Configure business description
 - Configure Google review URL
-- Configure contact information
-- Manage QR code settings
-- Configure feedback page appearance
+- Configure contact information & feedback page appearance
 
-### FR-011: Review Response Assistance (AI — Future)
-- Suggest review responses based on feedback content
-- AI output presented as suggestions, not authoritative decisions
-- Deferred to Phase 7
+### FR-011: Provider Abstraction: AI Insights (Post-MVP)
+- Pluggable `IAiProvider` interface with default `NoOpAiProvider` (₹0 cost)
+- Ready for future OpenAI/Anthropic/Gemini integration without modifying domain code
+- Postponed from MVP
 
-### FR-012: Customer Feedback Summarization (AI — Future)
-- Summarize feedback themes and patterns
-- Sentiment analysis across feedback
-- Monthly reputation summary generation
-- Actionable business insights
-- Deferred to Phase 7
+### FR-012: Provider Abstraction: Messaging & WhatsApp (Post-MVP)
+- Pluggable `IMessagingProvider` interface with default `ConsoleMessagingProvider` (₹0 cost)
+- Ready for future WhatsApp Business API / Twilio integration
+- Postponed from MVP
 
-### FR-013: WhatsApp Integration (Future)
-- Send review request messages via WhatsApp
-- Architecture must support adding this later
-- Do not fake WhatsApp in initial implementation
-- Deferred to Phase 8
+### FR-013: Provider Abstraction: Billing & Subscriptions (Post-MVP)
+- Pluggable `IBillingProvider` interface with default `FreeTierBillingProvider` (₹0 cost)
+- Ready for future Stripe integration
+- Postponed from MVP
 
 ### FR-014: Marketing Website
 - Landing page with value proposition
@@ -153,11 +150,15 @@
 - Database backup strategy
 
 ## Constraints
-
-- **C-001:** No review gating — all customers see Google review CTA
-- **C-002:** Only two review sources: Reception QR and Instagram
-- **C-003:** No Google API text injection — use redirect URL only
-- **C-004:** No WhatsApp sending in initial implementation
-- **C-005:** AI features deferred to later phases
-- **C-006:** No unnecessary dependencies
-- **C-007:** Product before marketing site
+ 
+ - **C-001:** No review gating — all customers see Google review CTA
+ - **C-002:** Only two review sources: Reception QR and Instagram
+ - **C-003:** No Google API text injection — use redirect URL only
+ - **C-004:** No WhatsApp sending in initial implementation
+ - **C-005:** AI features deferred to later phases
+ - **C-006:** No unnecessary dependencies
+ - **C-007:** Product before marketing site
++- **C-008:** **₹0 Infrastructure Cost Baseline:** Prioritize free/open-source infrastructure and free tiers. Zero paid APIs, paid SaaS dependencies, paid AI, paid messaging, or external analytics in MVP.
++- **C-009:** **First-Party Lightweight Analytics:** Store all telemetry events in the existing PostgreSQL database. No external trackers.
++- **C-010:** **Lean MVP Metric Set:** The MVP dashboard only renders: Reception QR scans, Instagram visits, Feedback submissions, Google review CTA clicks, Rating distribution, Total feedback, and Basic recent feedback.
++- **C-011:** **Provider Abstractions for Deferred Features:** AI, WhatsApp, Stripe, and Email services must be architected behind clean provider interfaces with default ₹0/NoOp implementations to prevent rewrites when scaling.

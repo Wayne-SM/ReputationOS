@@ -243,18 +243,58 @@ RATE_LIMIT_WINDOW_MS=900000  # 15 minutes
 RATE_LIMIT_MAX_REQUESTS=100
 FEEDBACK_RATE_LIMIT_MAX=10  # per IP per window
 
-# AI (Future)
-# OPENAI_API_KEY=
-# AI_MODEL=gpt-4o-mini
-
-# WhatsApp (Future)
-# WHATSAPP_API_KEY=
-# WHATSAPP_PHONE_NUMBER_ID=
-
-# Stripe (Future)
-# STRIPE_SECRET_KEY=
-# STRIPE_WEBHOOK_SECRET=
+# Provider Drivers (Defaults to zero-cost no-op/local implementations)
+AI_PROVIDER=noop            # noop | openai | gemini
+MESSAGING_PROVIDER=console  # console | whatsapp
+BILLING_PROVIDER=free       # free | stripe
+EMAIL_PROVIDER=console      # console | smtp | resend
 ```
+
+## ₹0 Infrastructure Cost & Provider Architecture
+
+### First-Party Database Telemetry (Zero External Analytics)
+The MVP uses in-database telemetry powered directly by the PostgreSQL `analytics_events` and `feedback` tables:
+- Zero paid tracking scripts (no PostHog, Mixpanel, Segment, or Google Analytics).
+- Zero cookie-consent requirements for third-party trackers.
+- Sub-millisecond aggregation queries scoped by indexed `business_id`.
+
+### Essential 7 MVP Metrics Computation Model
+```
+┌───────────────────────────┬────────────────────────────────────────────────────────┐
+│ Metric                    │ Database Query Formula                                 │
+├───────────────────────────┼────────────────────────────────────────────────────────┤
+│ 1. Reception QR Scans     │ count(events) WHERE type='page_view' AND source='reception' │
+│ 2. Instagram Visits       │ count(events) WHERE type='page_view' AND source='instagram' │
+│ 3. Feedback Submissions   │ count(feedback)                                        │
+│ 4. Google Review Clicks   │ count(events) WHERE type='google_review_clicked'        │
+│ 5. Rating Distribution    │ count(feedback) GROUP BY rating (1..5)                 │
+│ 6. Total Feedback         │ count(feedback)                                        │
+│ 7. Basic Recent Feedback  │ SELECT * FROM feedback ORDER BY created_at DESC LIMIT 10│
+└───────────────────────────┴────────────────────────────────────────────────────────┘
+```
+
+### Pluggable Provider Abstractions (`server/src/providers/`)
+All capabilities that would otherwise incur SaaS fees or require paid accounts are isolated behind provider interfaces:
+
+```
+                  ┌────────────────────────┐
+                  │    Core Domain App     │
+                  └───────────┬────────────┘
+                              │
+             ┌────────────────┼────────────────┐
+             ▼                ▼                ▼
+     ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+     │ IAiProvider  │ │IMessagingProv│ │IBillingProv  │
+     └───────┬──────┘ └───────┬──────┘ └───────┬──────┘
+             │                │                │
+     ┌───────┴──────┐ ┌───────┴──────┐ ┌───────┴──────┐
+     ▼              ▼ ▼              ▼ ▼              ▼
+┌─────────┐   ┌───────┐┌─────────┐ ┌────┐┌─────────┐ ┌──────┐
+│ NoOp    │   │ OpenAI││ Console │ │WA  ││FreeTier │ │Stripe│
+│ (₹0 MVP)│   │(Future││ (₹0 MVP)│ │API ││(₹0 MVP) │ │(Fut) │
+└─────────┘   └───────┘└─────────┘ └────┘└─────────┘ └──────┘
+```
+This enables early testing at **₹0 baseline cost** while guaranteeing future enterprise scalability without refactoring business logic.
 
 ## Security Architecture
 

@@ -1,19 +1,19 @@
 # ROADMAP.md — Reputation OS
 
-## Milestone: v1.0 — Core Platform
+## Milestone: v1.0 — Lean MVP (₹0 Infrastructure Cost)
 
 ## Phases
 
 - [x] **Phase 1: Foundation & Project Setup** - Scaffolding, monorepo, 13-table schema, dev environment
 - [x] **Phase 2: Database Schema & Authentication** - Multi-tenant isolation, user/business registration, sessions, auth middleware
 - [x] **Phase 3: Customer Feedback Experience** - Public branded feedback page, star rating, universal Google review CTA
-- [ ] **Phase 4: QR Code & Source Tracking** - Reception QR and Instagram link generation and tracking
-- [ ] **Phase 5: Business Dashboard** - Core metrics, feedback management, business settings
-- [ ] **Phase 6: Reputation Analytics** - Funnel metrics, conversion tracking, trends
-- [ ] **Phase 7: AI Insights** - Review response assistance, feedback summarization
-- [ ] **Phase 8: WhatsApp Integration** - Review request automation channel
-- [ ] **Phase 9: Billing & SaaS Plans** - Subscriptions, Stripe integration, plan limits
-- [ ] **Phase 10: Security, Testing & Production Hardening** - Security audits, E2E tests, CI/CD
+- [ ] **Phase 4: QR Code & Source Tracking** - Print-ready Reception QR and Instagram link generation and tracking (Zero Cost)
+- [ ] **Phase 5: Lean Business Dashboard** - The 7 essential MVP metrics, recent feedback, and business settings (Zero Cost)
+- [ ] **Phase 6: Provider Abstractions & Extensibility** - Pluggable provider interfaces for AI, WhatsApp, Stripe, and Email (No-Op fallbacks)
+- [ ] **Phase 7: AI Insights** - (POST-MVP / Postponed)
+- [ ] **Phase 8: WhatsApp Integration** - (POST-MVP / Postponed)
+- [ ] **Phase 9: Billing & SaaS Plans** - (POST-MVP / Postponed)
+- [ ] **Phase 10: Production Hardening & Scalability** - Deployment configuration for free-tier cloud environments
 
 ---
 
@@ -194,227 +194,70 @@ Plans:
 
 ---
 
-### Phase 5: Business Dashboard
+### Phase 5: Lean Business Dashboard (MVP Scope)
 
 **Status:** Not Started  
-**Objective:** Build the main business dashboard with reputation overview, feedback management, and settings.
+**Goal:** Build the focused business dashboard with the 7 essential MVP metrics, recent customer feedback, and business settings.
+**Depends on:** Phase 4
+**Requirements:** FR-007, FR-008, FR-010, C-008, C-010
+**Success Criteria** (what must be TRUE):
+  1. Business dashboard loads in < 1 second using direct database aggregation (₹0 external analytics)
+  2. The 7 essential MVP metrics display accurately: Reception QR scans, Instagram visits, Feedback submissions, Google review CTA clicks, Rating distribution (1-5), Total feedback, and Recent feedback list
+  3. Feedback table displays customer rating, source badge (Reception/Instagram), timestamp, and text
+  4. Business settings allow updating business name, accent color, and Google Review URL
+  5. Cross-tenant isolation is strictly preserved in all dashboard queries
+**Plans:** 1 plan
 
-**Requirements:** FR-007, FR-008, FR-010  
-**Dependencies:** Phase 4
-
-**Scope:**
-- Dashboard layout with sidebar navigation
-- Reputation overview cards:
-  - Google Rating (configured/manual initially)
-  - Google Reviews count
-  - New Reviews (period)
-  - Feedback submissions count
-- Source metrics: Reception QR scans, Instagram visits
-- Google Activity: review CTA clicks
-- Recent feedback list with filtering
-- Rating distribution visualization
-- Feedback detail view
-- Business settings page:
-  - Business profile (name, logo, color, description)
-  - Google review URL configuration
-  - Contact information
-  - Feedback page preview
-- Protected routes (auth required)
-- Responsive dashboard for tablet/desktop
-
-**Acceptance Criteria:**
-- Dashboard loads in < 3s
-- All metrics display correctly
-- Feedback list paginates and filters properly
-- Settings save and reflect on feedback page
-- Logo upload works
-- Dashboard only shows authenticated business's data
-- Visual design matches premium direction (Linear/Stripe quality)
-
-**Testing:**
-- Dashboard API endpoint tests
-- Metric calculation verification
-- Settings CRUD tests
-- Authorization tests (no cross-tenant access)
-- Responsive layout testing
+Plans:
+- [ ] 05-01: Essential metrics API, feedback list with filters, business settings form, and premium dashboard UI
 
 ---
 
-### Phase 6: Reputation Analytics
+### Phase 6: Provider Abstractions & Extensibility
 
 **Status:** Not Started  
-**Objective:** Implement comprehensive analytics with funnel tracking, trends, and conversion metrics.
+**Goal:** Implement clean provider interfaces for postponed external services (AI, WhatsApp, Billing, Email) with default ₹0/No-Op local providers so features can be plugged in later without major rewrites.
+**Depends on:** Phase 5
+**Requirements:** FR-011, FR-012, FR-013, C-008, C-011
+**Success Criteria** (what must be TRUE):
+  1. IAiProvider interface created with NoOpAiProvider (returns structured fallback or empty suggestion)
+  2. IMessagingProvider interface created with ConsoleMessagingProvider (logs formatted message to console at ₹0 cost)
+  3. IBillingProvider interface created with FreeTierBillingProvider (manages active free status without Stripe dependencies)
+  4. IEmailProvider interface created with ConsoleEmailProvider (logs password reset / notification events at ₹0 cost)
+  5. Provider factory resolves implementations via environment variables without touching domain logic
+**Plans:** 1 plan
 
-**Requirements:** FR-009  
-**Dependencies:** Phase 5
-
-**Scope:**
-- Analytics event tracking implementation
-  - feedback_page_view, rating_selected, feedback_started, feedback_submitted, google_review_clicked
-- Funnel visualization (views → ratings → feedback → Google clicks)
-- Conversion rate calculations
-- Time-series analytics (daily, weekly, monthly)
-- Source comparison analytics
-- Reputation trend charts
-- Analytics dashboard page
-- Date range picker
-- Export analytics data
-- Privacy-conscious tracking (no unnecessary PII)
-
-**Acceptance Criteria:**
-- All funnel events tracked accurately
-- Funnel visualization shows correct conversion rates
-- Trends render correctly over selected time periods
-- Source comparison shows reception vs instagram performance
-- Analytics only accessible to authenticated business owner
-- No unnecessary personal data collected
-
-**Testing:**
-- Event tracking accuracy tests
-- Funnel calculation verification
-- Date range filtering tests
-- Privacy compliance check (no PII in events)
+Plans:
+- [ ] 06-01: Provider interfaces, factory resolution, and No-Op/local implementations for AI, WhatsApp, Stripe, and Email
 
 ---
 
-### Phase 7: AI Insights
+### Phase 7: AI Insights (POST-MVP / Postponed)
 
-**Status:** Not Started  
-**Objective:** Add AI-powered review response suggestions, feedback summarization, and reputation insights.
-
-**Requirements:** FR-011, FR-012  
+**Status:** Deferred  
+**Objective:** Add AI-powered review response suggestions and sentiment analysis using pluggable AI provider.
 **Dependencies:** Phase 6
 
-**Scope:**
-- Review response suggestion engine
-- Customer feedback theme extraction
-- Sentiment analysis across feedback
-- Monthly reputation summary generation
-- Actionable business insights
-- AI insights dashboard page
-- AI output clearly marked as suggestions/assistance
-- Rate limiting on AI calls
-
-**Acceptance Criteria:**
-- Response suggestions are contextually relevant
-- Feedback themes accurately reflect patterns
-- Sentiment analysis produces meaningful results
-- Monthly summaries cover key metrics and trends
-- AI output clearly labeled as AI-generated suggestions
-- AI features do not block core functionality if unavailable
-
-**Testing:**
-- AI response quality validation
-- Sentiment accuracy benchmarks
-- Graceful degradation when AI unavailable
-- Rate limit enforcement
-
 ---
 
-### Phase 8: WhatsApp Integration
+### Phase 8: WhatsApp Integration (POST-MVP / Postponed)
 
-**Status:** Not Started  
-**Objective:** Add WhatsApp-based review request automation as a third acquisition channel.
-
-**Requirements:** FR-013  
+**Status:** Deferred  
+**Objective:** Add WhatsApp Business automated review request flows using pluggable messaging provider.
 **Dependencies:** Phase 6
 
-**Scope:**
-- WhatsApp Business API integration
-- Message template management
-- Customer visit → WhatsApp message → feedback URL flow
-- WhatsApp as tracked source
-- Opt-in/consent management
-- Message delivery tracking
-- WhatsApp analytics in dashboard
+---
 
-**Acceptance Criteria:**
-- WhatsApp messages send successfully via Business API
-- Feedback URL in message tracks source=whatsapp
-- Customer consent properly managed
-- Delivery status tracked
-- WhatsApp metrics appear in dashboard
+### Phase 9: Billing & SaaS Plans (POST-MVP / Postponed)
 
-**Testing:**
-- WhatsApp API integration tests
-- Message delivery verification
-- Source tracking for WhatsApp channel
-- Consent flow testing
+**Status:** Deferred  
+**Objective:** Add Stripe subscription billing using pluggable billing provider.
+**Dependencies:** Phase 6
 
 ---
 
-### Phase 9: Billing & SaaS Plans
+### Phase 10: Production Hardening & Scalability
 
 **Status:** Not Started  
-**Objective:** Implement subscription billing, plan management, and usage tracking.
-
-**Requirements:** FR-015  
-**Dependencies:** Phase 5
-
-**Scope:**
-- Subscription plans definition (Free, Pro, Business)
-- Payment integration (Stripe)
-- Plan selection and upgrade/downgrade
-- Usage tracking and limits
-- Billing dashboard
-- Invoice generation
-- Trial period management
-- Plan-based feature gating
-
-**Acceptance Criteria:**
-- Users can subscribe to plans
-- Payments process correctly via Stripe
-- Usage limits enforced per plan
-- Upgrade/downgrade works smoothly
-- Invoices generated and accessible
-- Trial period functions correctly
-
-**Testing:**
-- Stripe integration tests (test mode)
-- Plan switching tests
-- Usage limit enforcement tests
-- Billing calculation accuracy
-
----
-
-### Phase 10: Security, Testing & Production Hardening
-
-**Status:** Not Started  
-**Objective:** Comprehensive security audit, test coverage, performance optimization, and production deployment readiness.
-
-**Requirements:** NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, NFR-006  
-**Dependencies:** Phase 1–9
-
-**Scope:**
-- Security audit and penetration testing
-- Tenant isolation verification
-- Rate limiting review and hardening
-- Input sanitization audit
-- CSRF/XSS protection verification
-- API security headers
-- Database query optimization
-- Performance benchmarking
-- Error monitoring setup
-- Logging and audit trail
-- Backup and recovery procedures
-- CI/CD pipeline
-- Production deployment configuration
-- Load testing
-- Documentation finalization
-
-**Acceptance Criteria:**
-- No critical/high security vulnerabilities
-- Tenant isolation verified under adversarial testing
-- All rate limits functioning
-- Performance meets NFR targets
-- CI/CD pipeline deploys successfully
-- Monitoring and alerting operational
-- Backup/restore tested
-- Production environment stable
-
-**Testing:**
-- Security scan (automated + manual)
-- Load testing results
-- Tenant isolation adversarial tests
-- Full regression test suite
-- Backup/restore drill
+**Objective:** Free-tier deployment guides (Render / Vercel / Supabase), security checklist verification, and final regression testing.
+**Dependencies:** Phase 1–6

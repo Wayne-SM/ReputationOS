@@ -71,21 +71,49 @@ Every business has fully isolated data. A business must never access another bus
 **Style:** Premium, modern, minimal, professional  
 **Avoid:** Generic admin templates, excessive cards/gradients, childish UI, bloated navigation
 
+## Critical Constraints & MVP Principles
+
+> [!CAUTION]
+> **NO REVIEW GATING.** Every customer must have access to the Google review option regardless of their rating. Do not manipulate, fabricate, incentivize, suppress, or selectively solicit reviews. This is a hard constraint that applies to all phases.
+
+> [!IMPORTANT]
+> **₹0 INFRASTRUCTURE COST BASELINE:**
+> - MVP operates at ₹0 infrastructure cost using free/open-source tools and generous free tiers (local/free PostgreSQL, free-tier hosting).
+> - Zero mandatory paid third-party APIs, SaaS platforms, paid AI, paid messaging, or external analytics platforms.
+> - First-party lightweight telemetry stored in the existing PostgreSQL database.
+> - Clean provider abstractions (`server/src/providers/`) for deferred capabilities (AI, WhatsApp, Billing, Email) with default NoOp/local fallbacks.
+
+## Essential MVP Metrics Only
+
+The MVP deliberately restricts metrics to what is necessary to onboard the first businesses and validate value:
+1. **Reception QR scans** (from first-party events)
+2. **Instagram visits** (from first-party events)
+3. **Feedback submissions**
+4. **Google review CTA clicks**
+5. **Rating distribution** (1 to 5 stars)
+6. **Total feedback count**
+7. **Basic recent feedback list**
+
+**Postponed from MVP:** Advanced historical analytics, cohort analysis, conversion funnels, automated PDF reports, expensive AI processing, WhatsApp API, billing/subscriptions, multi-location management.
+
 ## Key Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
+| Infrastructure Cost | ₹0 Target (Free Tier) | Zero-barrier testing with early businesses |
+| Analytics Platform | First-party PostgreSQL | No paid third-party trackers; zero data leakage |
 | Review gating | Prohibited | Google policy compliance |
 | QR locations | Single (Reception) | Simplicity first |
 | Feedback sources | Reception QR + Instagram | Core acquisition channels |
 | Customer auth | Not required | Frictionless feedback |
-| AI features | Deferred to later phases | Product-first approach |
-| WhatsApp | Future integration | Architecture-ready, not implemented |
+| Extensibility | Provider abstractions | AI, WhatsApp, Stripe pluggable without rewrites |
+| AI features | Deferred (Mock/NoOp) | Product-first approach |
+| WhatsApp | Deferred (Mock/NoOp) | Architecture-ready, no paid API |
 | Google API | Review URL redirect only | No text injection API exists |
 
-## Milestone: v1.0 — Core Platform
+## Milestone: v1.0 — Lean MVP
 
-**Objective:** Ship a production-ready multi-tenant feedback and review growth platform with Reception QR and Instagram sources, business dashboard, and reputation analytics.
+**Objective:** Ship a production-ready, zero-cost-to-operate multi-tenant feedback and review growth platform with Reception QR, Instagram sources, the 7 essential reputation metrics, and provider abstractions for future expansion.
 
 **Phases:** See ROADMAP.md
 
