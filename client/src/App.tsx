@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { SourcesPage } from './pages/SourcesPage';
 import { FeedbackPage } from './pages/FeedbackPage';
 
 function HomePage() {
@@ -66,6 +67,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sources"
+          element={
+            <ProtectedRoute>
+              <SourcesPage />
             </ProtectedRoute>
           }
         />

@@ -7,7 +7,7 @@
 - [x] **Phase 1: Foundation & Project Setup** - Scaffolding, monorepo, 13-table schema, dev environment
 - [x] **Phase 2: Database Schema & Authentication** - Multi-tenant isolation, user/business registration, sessions, auth middleware
 - [x] **Phase 3: Customer Feedback Experience** - Public branded feedback page, star rating, universal Google review CTA
-- [ ] **Phase 4: QR Code & Source Tracking** - Print-ready Reception QR and Instagram link generation and tracking (Zero Cost)
+- [x] **Phase 4: QR Code & Source Tracking** - Print-ready Reception QR and Instagram link generation and tracking (Zero Cost)
 - [ ] **Phase 5: Lean Business Dashboard** - The 7 essential MVP metrics, recent feedback, and business settings (Zero Cost)
 - [ ] **Phase 6: Provider Abstractions & Extensibility** - Pluggable provider interfaces for AI, WhatsApp, Stripe, and Email (No-Op fallbacks)
 - [ ] **Phase 7: AI Insights** - (POST-MVP / Postponed)
@@ -161,11 +161,21 @@ Plans:
 
 ### Phase 4: QR Code & Source Tracking
 
-**Status:** Not Started  
-**Objective:** Implement QR code generation, source tracking for Reception QR and Instagram, and source management.
+**Status:** Complete  
+**Goal:** Implement server-side print-ready QR code generation, source tracking for Reception QR and Instagram, and dashboard source management at ₹0 infrastructure cost.
+**Depends on:** Phase 3
+**Requirements:** FR-005, FR-006, C-008
+**Success Criteria** (what must be TRUE):
+  1. Server generates high-resolution PNG (1024x1024) and vector SVG QR codes in-process with zero external API calls
+  2. Reception QR encodes the canonical feedback URL with ?source=reception
+  3. Instagram source generator provides the canonical link with ?source=instagram
+  4. Authenticated business owner can download print-ready PNG and vector SVG QR assets
+  5. One-click copy interaction allows easy deployment of the Instagram bio link
+  6. Source attribution is strictly recorded on feedback submissions and telemetry events
+**Plans:** 1 plan
 
-**Requirements:** FR-005, FR-006  
-**Dependencies:** Phase 3
+Plans:
+- [x] 04-01: In-process QR code generator (PNG/SVG), authenticated sources API, print-ready download endpoints, and dashboard sources UI
 
 **Scope:**
 - QR code generation for business feedback URL

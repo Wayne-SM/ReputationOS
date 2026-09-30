@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
 export function DashboardPage() {
@@ -21,18 +22,27 @@ export function DashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-semibold text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{role}</p>
-            </div>
+          {/* Navigation Links */}
+          <nav className="flex items-center gap-6">
+            <Link
+              to="/dashboard"
+              className="text-sm font-semibold text-brand-600 border-b-2 border-brand-600 py-5 transition-colors"
+            >
+              Overview
+            </Link>
+            <Link
+              to="/sources"
+              className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              QR & Links
+            </Link>
             <button
               onClick={() => logout()}
-              className="btn-secondary text-xs py-1.5 px-3"
+              className="btn-secondary text-xs py-1.5 px-3 ml-2"
             >
               Sign out
             </button>
-          </div>
+          </nav>
         </div>
       </header>
 
