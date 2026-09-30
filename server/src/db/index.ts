@@ -1,0 +1,28 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
+import pg from 'pg';
+import { env } from '../lib/env.js';
+import * as schema from './schema.js';
+
+const pool = new pg.Pool({
+  connectionString: env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
+
+export const db = drizzle(pool, { schema });
+
+/** Verify database connection */
+export async function verifyConnection(): Promise<boolean> {
+  try {
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    return true;
+  } catch {
+    console.error('Database connection failed');
+    return false;
+  }
+}
+
+export { pool };
