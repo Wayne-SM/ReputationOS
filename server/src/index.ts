@@ -15,8 +15,22 @@ const app = express();
 
 // ── Security ────────────────────────────────────────────────
 app.use(helmet());
+
+const configuredOrigin = env.CORS_ORIGIN ? env.CORS_ORIGIN.replace(/\/+$/, '') : 'http://localhost:5173';
+
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const normalized = origin.replace(/\/+$/, '');
+    if (
+      configuredOrigin === '*' ||
+      normalized === configuredOrigin ||
+      normalized.endsWith('.vercel.app')
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
   credentials: true,
 }));
 
