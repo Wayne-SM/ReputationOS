@@ -4,7 +4,7 @@
 
 **Project:** Reputation OS  
 **Milestone:** v1.0 — Lean MVP (₹0 Infrastructure Cost)  
-**Status:** In Progress (Phase 6 Complete, Phase 10 Planned)  
+**Status:** ✅ Milestone v1.0 Complete (Ready for ₹0 Cloud Deployment)  
 **Last Updated:** 2026-09-30  
 
 ## Phase Progress
@@ -20,7 +20,7 @@
 | 7 | AI Insights | Deferred (Post-MVP) | — | — |
 | 8 | WhatsApp Integration | Deferred (Post-MVP) | — | — |
 | 9 | Billing & SaaS Plans | Deferred (Post-MVP) | — | — |
-| 10 | Production Hardening & Scalability | 📋 Planned | 2026-09-30 | — |
+| 10 | Production Hardening & Scalability | ✅ Complete | 2026-09-30 | 2026-09-30 |
 
 ## Planning Artifacts
 
@@ -36,12 +36,13 @@
 | TESTING.md | ✅ Complete | .planning/TESTING.md |
 | STATE.md | ✅ Complete | .planning/STATE.md |
 | SUMMARY.md | ✅ Complete | .planning/SUMMARY.md |
+| DEPLOYMENT.md | ✅ Complete | DEPLOYMENT.md |
 
 ## Active Decisions
 
 | Decision | Status | Notes |
 |----------|--------|-------|
-| ₹0 Infrastructure Cost | Locked | Free/open-source & free-tier deployment for MVP validation |
+| ₹0 Infrastructure Cost | Locked | Free/open-source & free-tier deployment for MVP validation (Neon + Render + Vercel) |
 | First-Party Telemetry | Locked | Lightweight SQL aggregations on existing PostgreSQL database |
 | Essential 7 Metrics Only | Locked | Reception QR scans, Instagram visits, Feedback submissions, Google clicks, Rating distribution, Total feedback, Recent feedback |
 | Provider Abstractions | Locked | AI, WhatsApp, Stripe, and Email behind pluggable interfaces with ₹0/No-Op defaults |
@@ -52,11 +53,8 @@
 
 ## Blockers
 
-None currently.
+None. Milestone v1.0 is completely implemented, verified with 51 unit tests, and ready for deployment.
 
 ## Next Action
 
-Execute Phase 10: Production Hardening & Scalability
-- Zero-cost deployment runbook & production configurations (Render, Vercel, Neon/Supabase)
-- Docker multi-stage containerization & static SPA rewrite rules
-- Final monorepo regression testing & security checklist verification
+Platform is ready for production launch. Follow `DEPLOYMENT.md` to deploy database to Neon, backend API to Render, and frontend SPA to Vercel/Cloudflare at ₹0 cost.

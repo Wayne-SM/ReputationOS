@@ -13,7 +13,7 @@ function setSessionCookie(res: any, sessionId: string) {
   res.cookie('session', sessionId, {
     httpOnly: true,
     secure: env.isProd,
-    sameSite: env.isProd ? 'strict' : 'lax',
+    sameSite: env.isProd ? 'none' : 'lax',
     maxAge: env.SESSION_EXPIRY_SECONDS * 1000,
     path: '/',
   });
@@ -87,7 +87,12 @@ router.post('/logout', requireAuth, async (req, res) => {
       await invalidateSession(authReq.session.id);
     }
 
-    res.clearCookie('session', { path: '/' });
+    res.clearCookie('session', {
+      path: '/',
+      httpOnly: true,
+      secure: env.isProd,
+      sameSite: env.isProd ? 'none' : 'lax',
+    });
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Logout error:', error);
