@@ -33,6 +33,7 @@ export async function validateSession(sessionId: string) {
         id: users.id,
         email: users.email,
         name: users.name,
+        isPlatformAdmin: users.isPlatformAdmin,
       },
     })
     .from(sessions)

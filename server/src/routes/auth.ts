@@ -4,7 +4,10 @@ import { registerSchema, loginSchema } from '../lib/validation.js';
 import { registerUser, loginUser, AuthError } from '../services/auth.service.js';
 import { invalidateSession } from '../lib/session.js';
 import { env } from '../lib/env.js';
-import { requireAuth, requireBusiness, type AuthenticatedRequest, type BusinessRequest } from '../middleware/auth.js';
+import { eq } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { businesses, businessMembers } from '../db/schema.js';
+import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -101,12 +104,23 @@ router.post('/logout', requireAuth, async (req, res) => {
 });
 
 // ── GET /me ─────────────────────────────────────────────────
-router.get('/me', requireAuth, requireBusiness, async (req, res) => {
-  const bizReq = req as BusinessRequest;
+router.get('/me', requireAuth, async (req, res) => {
+  const authReq = req as AuthenticatedRequest;
+
+  const [membership] = await db
+    .select({
+      business: businesses,
+      role: businessMembers.role,
+    })
+    .from(businessMembers)
+    .innerJoin(businesses, eq(businessMembers.businessId, businesses.id))
+    .where(eq(businessMembers.userId, authReq.user.id))
+    .limit(1);
+
   res.status(200).json({
-    user: bizReq.user,
-    business: bizReq.business,
-    role: bizReq.role,
+    user: authReq.user,
+    business: membership?.business ?? null,
+    role: membership?.role ?? null,
   });
 });
 

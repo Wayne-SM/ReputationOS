@@ -60,6 +60,21 @@ export const updateBusinessSettingsSchema = z.object({
   googleReviewCtaText: z.string().max(255).optional().nullable(),
 });
 
+// ── Admin Validation Schemas ────────────────────────────────
+
+export const updateBusinessStatusSchema = z.object({
+  status: z.enum(['PENDING', 'ACTIVE', 'SUSPENDED', 'REJECTED']),
+});
+
+export const recordPaymentSchema = z.object({
+  amount: z.number().positive('Amount must be greater than 0'),
+  paymentMethod: z.enum(['UPI', 'BANK_TRANSFER', 'CASH', 'OTHER']),
+  paymentStatus: z.enum(['COMPLETED', 'PENDING', 'FAILED']).default('COMPLETED'),
+  paymentDate: z.string().optional(),
+  reference: z.string().max(255).optional().nullable(),
+  notes: z.string().max(1000).optional().nullable(),
+});
+
 // ── Types ───────────────────────────────────────────────────
 
 export type RegisterInput = z.infer<typeof registerSchema>;
@@ -67,4 +82,6 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type FeedbackSubmissionInput = z.infer<typeof feedbackSubmissionSchema>;
 export type ClickGoogleInput = z.infer<typeof clickGoogleSchema>;
 export type UpdateBusinessSettingsInput = z.infer<typeof updateBusinessSettingsSchema>;
+export type UpdateBusinessStatusInput = z.infer<typeof updateBusinessStatusSchema>;
+export type RecordPaymentInput = z.infer<typeof recordPaymentSchema>;
 

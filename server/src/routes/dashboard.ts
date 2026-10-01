@@ -1,20 +1,20 @@
 import { Router } from 'express';
 import { and, eq, desc, count } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { feedback, analyticsEvents } from '../db/schema.js';
+import { feedback, analyticsEvents, googleReviewSettings } from '../db/schema.js';
 import { requireAuth, requireBusiness, type BusinessRequest } from '../middleware/auth.js';
 import type { DashboardOverview, Rating, RatingDistribution, FeedbackItem } from '../../../shared/types/index.js';
 
 const router = Router();
 
 // ── GET /api/v1/dashboard/overview ───────────────────────────
-// Returns the 7 essential MVP metrics, rating distribution, and recent feedback
+// Returns the core MVP metrics (Google rating/reviews, total feedback, scans, clicks), rating distribution, and recent feedback
 router.get('/overview', requireAuth, requireBusiness, async (req, res) => {
   try {
     const bizReq = req as BusinessRequest;
     const businessId = bizReq.business.id;
 
-    // Parallel execution of all 6 database aggregation queries
+    // Parallel execution of all database aggregation queries
     const [
       receptionScansResult,
       instagramVisitsResult,
@@ -22,6 +22,7 @@ router.get('/overview', requireAuth, requireBusiness, async (req, res) => {
       googleClicksResult,
       ratingDistResult,
       recentFeedbackList,
+      googleConfigResult,
     ] = await Promise.all([
       // 1. Reception QR Scans
       db
@@ -91,12 +92,23 @@ router.get('/overview', requireAuth, requireBusiness, async (req, res) => {
         .where(eq(feedback.businessId, businessId))
         .orderBy(desc(feedback.createdAt))
         .limit(20),
+
+      // 7. Google Review Stats
+      db
+        .select({
+          googleRating: googleReviewSettings.googleRating,
+          googleReviewCount: googleReviewSettings.googleReviewCount,
+        })
+        .from(googleReviewSettings)
+        .where(eq(googleReviewSettings.businessId, businessId))
+        .limit(1),
     ]);
 
     const receptionScans = receptionScansResult[0]?.count ?? 0;
     const instagramVisits = instagramVisitsResult[0]?.count ?? 0;
     const totalFeedback = feedbackCountResult[0]?.count ?? 0;
     const googleReviewClicks = googleClicksResult[0]?.count ?? 0;
+    const googleConfig = googleConfigResult[0];
 
     // Build complete 1-5 rating map
     const countsByRating: Record<Rating, number> = {
@@ -149,11 +161,13 @@ router.get('/overview', requireAuth, requireBusiness, async (req, res) => {
 
     const responseData: DashboardOverview = {
       metrics: {
+        googleRating: googleConfig?.googleRating ? Number(googleConfig.googleRating) : null,
+        googleReviewCount: googleConfig?.googleReviewCount ?? 0,
+        totalFeedback,
         receptionScans,
         instagramVisits,
-        feedbackSubmissions: totalFeedback,
         googleReviewClicks,
-        totalFeedback,
+        feedbackSubmissions: totalFeedback,
         averageRating,
       },
       ratingDistribution,

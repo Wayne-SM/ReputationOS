@@ -1,18 +1,22 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/auth';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { AdminRoute } from './components/layout/AdminRoute';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { SourcesPage } from './pages/SourcesPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FeedbackPage } from './pages/FeedbackPage';
+import { AccountStatusPage } from './pages/AccountStatusPage';
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { AdminBusinessDetailPage } from './pages/admin/AdminBusinessDetailPage';
 
 function HomePage() {
-  const { isAuthenticated, business } = useAuth();
+  const { isAuthenticated, business, user } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 font-sans">
       <div className="text-center max-w-xl">
         <div className="h-12 w-12 bg-brand-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-6 shadow-sm">
           R
@@ -23,11 +27,24 @@ function HomePage() {
         <p className="mt-4 text-lg text-gray-600 leading-relaxed">
           Turn more customer interactions into genuine feedback, Google review opportunities, and actionable reputation insights.
         </p>
-        <div className="mt-8 flex gap-4 justify-center">
+        <div className="mt-8 flex flex-wrap gap-4 justify-center">
           {isAuthenticated ? (
-            <Link to="/dashboard" className="btn-primary">
-              Go to Dashboard ({business?.name})
-            </Link>
+            <>
+              {business?.status === 'ACTIVE' ? (
+                <Link to="/dashboard" className="btn-primary">
+                  Go to Dashboard ({business.name})
+                </Link>
+              ) : (
+                <Link to="/status" className="btn-primary">
+                  Check Account Status
+                </Link>
+              )}
+              {user?.isPlatformAdmin && (
+                <Link to="/admin" className="btn-secondary">
+                  Platform Admin
+                </Link>
+              )}
+            </>
           ) : (
             <>
               <Link to="/login" className="btn-secondary">
@@ -46,7 +63,7 @@ function HomePage() {
 
 function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 font-sans">
       <h1 className="text-3xl font-bold text-gray-900">404</h1>
       <p className="mt-2 text-gray-500">Page not found</p>
       <Link to="/" className="mt-4 text-sm text-brand-600 hover:underline">
@@ -63,6 +80,9 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/status" element={<AccountStatusPage />} />
+
+        {/* Business Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -87,6 +107,26 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Platform Admin Protected Routes */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/businesses/:id"
+          element={
+            <AdminRoute>
+              <AdminBusinessDetailPage />
+            </AdminRoute>
+          }
+        />
+
+        {/* Public Feedback Route */}
         <Route path="/r/:businessSlug" element={<FeedbackPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

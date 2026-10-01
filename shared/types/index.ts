@@ -5,14 +5,17 @@
 /** Review source types */
 export type SourceType = 'reception' | 'instagram' | 'whatsapp' | 'direct';
 
+/** Business lifecycle status */
+export type BusinessStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED';
+
 /** Business member roles */
 export type MemberRole = 'owner' | 'admin' | 'member';
 
-/** Subscription plans */
-export type SubscriptionPlan = 'free' | 'pro' | 'business';
+/** Manual payment method */
+export type PaymentMethod = 'UPI' | 'BANK_TRANSFER' | 'CASH' | 'OTHER';
 
-/** Subscription status */
-export type SubscriptionStatus = 'active' | 'cancelled' | 'past_due';
+/** Manual payment status */
+export type PaymentStatus = 'COMPLETED' | 'PENDING' | 'FAILED';
 
 /** Analytics event types */
 export type AnalyticsEventType =
@@ -78,13 +81,15 @@ export interface HealthStatus {
 
 // ── Dashboard Types ────────────────────────────────────────
 
-/** Reputation overview metrics (The 7 essential MVP metrics) */
+/** Reputation overview metrics (Core MVP metrics) */
 export interface DashboardMetrics {
+  googleRating: number | null;
+  googleReviewCount: number;
+  totalFeedback: number;
   receptionScans: number;
   instagramVisits: number;
-  feedbackSubmissions: number;
   googleReviewClicks: number;
-  totalFeedback: number;
+  feedbackSubmissions: number;
   averageRating: number | null;
 }
 
@@ -93,6 +98,97 @@ export interface DashboardOverview {
   metrics: DashboardMetrics;
   ratingDistribution: RatingDistribution[];
   recentFeedback: FeedbackItem[];
+}
+
+// ── Admin & Payment Types ──────────────────────────────────
+
+/** Manual payment ledger entry */
+export interface BusinessPayment {
+  id: string;
+  businessId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  paymentDate: string;
+  reference: string | null;
+  notes: string | null;
+  recordedBy: string | null;
+  createdAt: string;
+}
+
+/** Payload to record a manual payment */
+export interface RecordPaymentPayload {
+  amount: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  paymentDate?: string;
+  reference?: string;
+  notes?: string;
+}
+
+/** Admin Overview KPI statistics */
+export interface AdminOverviewStats {
+  totalBusinesses: number;
+  pendingBusinesses: number;
+  activeBusinesses: number;
+  suspendedBusinesses: number;
+  rejectedBusinesses: number;
+}
+
+/** Admin business summary row in list table */
+export interface AdminBusinessSummary {
+  id: string;
+  name: string;
+  slug: string;
+  status: BusinessStatus;
+  createdAt: string;
+  ownerName: string;
+  ownerEmail: string;
+  latestPaymentStatus: PaymentStatus | 'UNPAID';
+  totalPaidAmount: number;
+  totalFeedback: number;
+  averageRating: number | null;
+}
+
+/** Full business detail for admin inspection */
+export interface AdminBusinessDetail {
+  business: {
+    id: string;
+    name: string;
+    slug: string;
+    status: BusinessStatus;
+    description: string | null;
+    logoUrl: string | null;
+    accentColor: string;
+    phone: string | null;
+    email: string | null;
+    website: string | null;
+    createdAt: string;
+  };
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  googleReview: {
+    googlePlaceId: string | null;
+    googleReviewUrl: string | null;
+    googleRating: number | null;
+    googleReviewCount: number;
+  };
+  settings: {
+    feedbackWelcomeText: string;
+    feedbackThankYouText: string;
+    googleReviewCtaText: string;
+    collectContactInfo: boolean;
+  };
+  metrics: DashboardMetrics;
+  sources: {
+    receptionUrl: string;
+    instagramUrl: string;
+  };
+  recentFeedback: FeedbackItem[];
+  payments: BusinessPayment[];
 }
 
 /** Rating distribution */
@@ -121,6 +217,7 @@ export interface FeedbackItem {
   googleReviewClicked: boolean;
   customerName: string | null;
   customerEmail?: string | null;
+  customerPhone?: string | null;
   createdAt: string;
 }
 

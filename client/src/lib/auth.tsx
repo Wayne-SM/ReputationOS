@@ -1,16 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { api } from './api';
 
+export type BusinessStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED';
+
 export interface User {
   id: string;
   email: string;
   name: string;
+  isPlatformAdmin?: boolean;
 }
 
 export interface Business {
   id: string;
   name: string;
   slug: string;
+  status: BusinessStatus;
   accentColor?: string;
   logoUrl?: string | null;
 }
@@ -29,6 +33,7 @@ interface AuthContextType {
     businessName: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,25 +44,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const refreshSession = async () => {
+    try {
+      const data = await api.get<{
+        user: User;
+        business: Business;
+        role: string;
+      }>('/auth/me');
+      setUser(data.user);
+      setBusiness(data.business);
+      setRole(data.role);
+    } catch {
+      setUser(null);
+      setBusiness(null);
+      setRole(null);
+    }
+  };
+
   // Check current session on mount
   useEffect(() => {
     async function checkAuth() {
-      try {
-        const data = await api.get<{
-          user: User;
-          business: Business;
-          role: string;
-        }>('/auth/me');
-        setUser(data.user);
-        setBusiness(data.business);
-        setRole(data.role);
-      } catch {
-        setUser(null);
-        setBusiness(null);
-        setRole(null);
-      } finally {
-        setIsLoading(false);
-      }
+      setIsLoading(true);
+      await refreshSession();
+      setIsLoading(false);
     }
 
     checkAuth();
@@ -111,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        refreshSession,
       }}
     >
       {children}

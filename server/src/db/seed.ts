@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { eq } from 'drizzle-orm';
 import { db, verifyConnection, pool } from './index.js';
 import {
   users,
@@ -10,6 +11,7 @@ import {
   qrCodes,
   feedback,
   analyticsEvents,
+  businessPayments,
 } from './schema.js';
 import { hashPassword } from '../services/auth.service.js';
 
@@ -32,17 +34,58 @@ async function seed() {
         name: 'Alex Rivera',
         passwordHash,
         emailVerified: true,
+        isPlatformAdmin: true,
       })
       .onConflictDoNothing()
       .returning();
 
     if (!demoUser) {
-      console.log('ℹ️ Demo user already exists. Skipping seed.');
-      await pool.end();
+      console.log('ℹ️ Demo user already exists. Updating admin status and ensuring business is active.');
+      const [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, 'demo@reputationos.com'))
+        .limit(1);
+
+      if (existingUser) {
+        await db
+          .update(users)
+          .set({ isPlatformAdmin: true })
+          .where(eq(users.id, existingUser.id));
+
+        const [existingBusiness] = await db
+          .select()
+          .from(businesses)
+          .where(eq(businesses.slug, 'daily-grind'))
+          .limit(1);
+
+        if (existingBusiness) {
+          await db
+            .update(businesses)
+            .set({ status: 'ACTIVE' })
+            .where(eq(businesses.id, existingBusiness.id));
+
+          // Ensure a sample payment exists
+          await db
+            .insert(businessPayments)
+            .values({
+              businessId: existingBusiness.id,
+              amount: '5000.00',
+              paymentMethod: 'UPI',
+              paymentStatus: 'COMPLETED',
+              paymentDate: new Date(),
+              reference: 'UPI/20261001/987654321',
+              notes: 'Initial onboarding & annual platform subscription',
+              recordedBy: existingUser.id,
+            });
+        }
+      }
+
+      console.log('✓ Updated existing user & business with ACTIVE status and sample payment.');
       return;
     }
 
-    console.log('✓ Created demo user: demo@reputationos.com');
+    console.log('✓ Created demo user: demo@reputationos.com (isPlatformAdmin: true)');
 
     // 2. Create Demo Business
     const [demoBusiness] = await db
@@ -50,6 +93,7 @@ async function seed() {
       .values({
         name: 'The Daily Grind Artisan Cafe',
         slug: 'daily-grind',
+        status: 'ACTIVE',
         description: 'Specialty coffee and artisan pastries crafted locally with care.',
         accentColor: '#2563eb',
         phone: '+1 (555) 234-5678',
@@ -59,7 +103,7 @@ async function seed() {
       })
       .returning();
 
-    console.log(`✓ Created demo business: ${demoBusiness!.name} (slug: ${demoBusiness!.slug})`);
+    console.log(`✓ Created demo business: ${demoBusiness!.name} (status: ACTIVE, slug: ${demoBusiness!.slug})`);
 
     // 3. Create Business Membership
     await db.insert(businessMembers).values({
@@ -114,7 +158,19 @@ async function seed() {
       styleConfig: { errorCorrectionLevel: 'M', color: { dark: '#000000', light: '#ffffff' } },
     });
 
-    // 8. Create Sample Feedbacks
+    // 8. Create Sample Payments
+    await db.insert(businessPayments).values({
+      businessId: demoBusiness!.id,
+      amount: '5000.00',
+      paymentMethod: 'UPI',
+      paymentStatus: 'COMPLETED',
+      paymentDate: new Date(),
+      reference: 'UPI/20261001/987654321',
+      notes: 'Initial onboarding & annual platform subscription',
+      recordedBy: demoUser.id,
+    });
+
+    // 9. Create Sample Feedbacks
     const sampleFeedbacks = [
       {
         rating: 5,
@@ -168,7 +224,7 @@ async function seed() {
 
     console.log(`✓ Inserted ${sampleFeedbacks.length} sample feedback entries`);
 
-    // 9. Sample Analytics Events
+    // 10. Sample Analytics Events
     const events = [
       { type: 'feedback_page_view', source: 'reception' },
       { type: 'feedback_page_view', source: 'reception' },

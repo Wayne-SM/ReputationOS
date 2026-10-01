@@ -10,6 +10,7 @@ import publicRouter from './routes/public.js';
 import sourcesRouter from './routes/sources.js';
 import dashboardRouter from './routes/dashboard.js';
 import businessRouter from './routes/business.js';
+import adminRouter from './routes/admin.js';
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/v1/auth', authLimiter, authRouter);
 app.use('/api/v1/sources', sourcesRouter);
 app.use('/api/v1/dashboard', dashboardRouter);
 app.use('/api/v1/business', businessRouter);
+app.use('/api/v1/admin', adminRouter);
 app.use('/public', publicRouter);
 app.use('/api/v1/public', publicRouter);
 

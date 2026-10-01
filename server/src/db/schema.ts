@@ -8,7 +8,6 @@ import {
   decimal,
   timestamp,
   jsonb,
-  date,
   uniqueIndex,
   index,
 } from 'drizzle-orm/pg-core';
@@ -23,6 +22,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
+  isPlatformAdmin: boolean('is_platform_admin').default(false).notNull(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -44,6 +44,7 @@ export const businesses = pgTable('businesses', {
   address: text('address'),
   website: varchar('website', { length: 500 }),
   timezone: varchar('timezone', { length: 50 }).default('UTC').notNull(),
+  status: varchar('status', { length: 20 }).default('PENDING').notNull(), // 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED'
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -160,25 +161,6 @@ export const feedback = pgTable('feedback', {
 ]));
 
 // ============================================================
-// FEEDBACK RESPONSES
-// ============================================================
-
-export const feedbackResponses = pgTable('feedback_responses', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  feedbackId: uuid('feedback_id').notNull().references(() => feedback.id, { onDelete: 'cascade' }),
-  businessId: uuid('business_id').notNull().references(() => businesses.id, { onDelete: 'cascade' }),
-  responseText: text('response_text').notNull(),
-  isAiGenerated: boolean('is_ai_generated').default(false).notNull(),
-  isSent: boolean('is_sent').default(false).notNull(),
-  createdBy: uuid('created_by').references(() => users.id),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-}, (table) => ([
-  index('idx_fr_feedback').on(table.feedbackId),
-  index('idx_fr_business').on(table.businessId),
-]));
-
-// ============================================================
 // ANALYTICS EVENTS
 // ============================================================
 
@@ -198,37 +180,23 @@ export const analyticsEvents = pgTable('analytics_events', {
 ]));
 
 // ============================================================
-// MONTHLY REPORTS
+// BUSINESS PAYMENTS (Manual Ledger)
 // ============================================================
 
-export const monthlyReports = pgTable('monthly_reports', {
+export const businessPayments = pgTable('business_payments', {
   id: uuid('id').primaryKey().defaultRandom(),
   businessId: uuid('business_id').notNull().references(() => businesses.id, { onDelete: 'cascade' }),
-  month: date('month').notNull(),
-  reportData: jsonb('report_data').notNull(),
-  aiSummary: text('ai_summary'),
+  amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: varchar('payment_method', { length: 50 }).notNull(), // 'UPI' | 'BANK_TRANSFER' | 'CASH' | 'OTHER'
+  paymentStatus: varchar('payment_status', { length: 20 }).default('COMPLETED').notNull(), // 'COMPLETED' | 'PENDING' | 'FAILED'
+  paymentDate: timestamp('payment_date', { withTimezone: true }).defaultNow().notNull(),
+  reference: varchar('reference', { length: 255 }),
+  notes: text('notes'),
+  recordedBy: uuid('recorded_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ([
-  uniqueIndex('idx_mr_business_month').on(table.businessId, table.month),
-]));
-
-// ============================================================
-// SUBSCRIPTIONS
-// ============================================================
-
-export const subscriptions = pgTable('subscriptions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  businessId: uuid('business_id').notNull().references(() => businesses.id, { onDelete: 'cascade' }).unique(),
-  plan: varchar('plan', { length: 20 }).notNull().default('free'),
-  status: varchar('status', { length: 20 }).notNull().default('active'),
-  stripeCustomerId: varchar('stripe_customer_id', { length: 255 }),
-  stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }),
-  currentPeriodStart: timestamp('current_period_start', { withTimezone: true }),
-  currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-}, (table) => ([
-  index('idx_sub_stripe_customer').on(table.stripeCustomerId),
+  index('idx_bp_business').on(table.businessId),
+  index('idx_bp_business_date').on(table.businessId, table.paymentDate),
 ]));
 
 // ============================================================
@@ -250,6 +218,7 @@ export const sessions = pgTable('sessions', {
 export const usersRelations = relations(users, ({ many }) => ({
   businessMembers: many(businessMembers),
   sessions: many(sessions),
+  recordedPayments: many(businessPayments),
 }));
 
 export const businessesRelations = relations(businesses, ({ many, one }) => ({
@@ -259,8 +228,7 @@ export const businessesRelations = relations(businesses, ({ many, one }) => ({
   reviewSources: many(reviewSources),
   feedback: many(feedback),
   analyticsEvents: many(analyticsEvents),
-  monthlyReports: many(monthlyReports),
-  subscription: one(subscriptions),
+  payments: many(businessPayments),
 }));
 
 export const businessMembersRelations = relations(businessMembers, ({ one }) => ({
@@ -286,27 +254,17 @@ export const qrCodesRelations = relations(qrCodes, ({ one }) => ({
   business: one(businesses, { fields: [qrCodes.businessId], references: [businesses.id] }),
 }));
 
-export const feedbackRelations = relations(feedback, ({ one, many }) => ({
+export const feedbackRelations = relations(feedback, ({ one }) => ({
   business: one(businesses, { fields: [feedback.businessId], references: [businesses.id] }),
-  responses: many(feedbackResponses),
 }));
 
-export const feedbackResponsesRelations = relations(feedbackResponses, ({ one }) => ({
-  feedback: one(feedback, { fields: [feedbackResponses.feedbackId], references: [feedback.id] }),
-  business: one(businesses, { fields: [feedbackResponses.businessId], references: [businesses.id] }),
-  createdByUser: one(users, { fields: [feedbackResponses.createdBy], references: [users.id] }),
+export const businessPaymentsRelations = relations(businessPayments, ({ one }) => ({
+  business: one(businesses, { fields: [businessPayments.businessId], references: [businesses.id] }),
+  recordedByUser: one(users, { fields: [businessPayments.recordedBy], references: [users.id] }),
 }));
 
 export const analyticsEventsRelations = relations(analyticsEvents, ({ one }) => ({
   business: one(businesses, { fields: [analyticsEvents.businessId], references: [businesses.id] }),
-}));
-
-export const monthlyReportsRelations = relations(monthlyReports, ({ one }) => ({
-  business: one(businesses, { fields: [monthlyReports.businessId], references: [businesses.id] }),
-}));
-
-export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
-  business: one(businesses, { fields: [subscriptions.businessId], references: [businesses.id] }),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({

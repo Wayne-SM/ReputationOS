@@ -10,6 +10,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  isPlatformAdmin: boolean;
 }
 
 export interface AuthSession {
@@ -23,7 +24,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export interface BusinessRequest extends AuthenticatedRequest {
-  business: { id: string; name: string; slug: string };
+  business: { id: string; name: string; slug: string; status: string };
   role: string;
 }
 
@@ -72,6 +73,7 @@ export async function requireAuth(
 }
 
 // ── Middleware: Require Business ─────────────────────────────
+// Enforces that the user has a business and it is ACTIVE
 
 export async function requireBusiness(
   req: Request,
@@ -90,6 +92,7 @@ export async function requireBusiness(
       businessId: businesses.id,
       businessName: businesses.name,
       businessSlug: businesses.slug,
+      status: businesses.status,
       role: businessMembers.role,
     })
     .from(businessMembers)
@@ -102,12 +105,45 @@ export async function requireBusiness(
     return;
   }
 
+  // Lifecycle check: Only ACTIVE businesses can access the normal business dashboard
+  if (membership.status !== 'ACTIVE') {
+    res.status(403).json({
+      error: 'Business account is not active',
+      status: membership.status,
+      code: 'ACCOUNT_NOT_ACTIVE',
+    });
+    return;
+  }
+
   (req as BusinessRequest).business = {
     id: membership.businessId,
     name: membership.businessName,
     slug: membership.businessSlug,
+    status: membership.status,
   };
   (req as BusinessRequest).role = membership.role;
+
+  next();
+}
+
+// ── Middleware: Require Platform Admin ───────────────────────
+
+export async function requirePlatformAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  const authReq = req as AuthenticatedRequest;
+
+  if (!authReq.user) {
+    res.status(401).json({ error: 'Authentication required' });
+    return;
+  }
+
+  if (!authReq.user.isPlatformAdmin) {
+    res.status(403).json({ error: 'Platform admin privileges required' });
+    return;
+  }
 
   next();
 }

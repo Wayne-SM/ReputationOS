@@ -25,11 +25,8 @@ export const env = {
   RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
   FEEDBACK_RATE_LIMIT_MAX: parseInt(process.env.FEEDBACK_RATE_LIMIT_MAX || '10', 10),
 
-  // Provider Abstractions (Zero-cost defaults)
-  AI_PROVIDER: process.env.AI_PROVIDER || 'noop',
-  MESSAGING_PROVIDER: process.env.MESSAGING_PROVIDER || 'console',
-  BILLING_PROVIDER: process.env.BILLING_PROVIDER || 'free_tier',
-  EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || 'console',
+  // Platform Admin
+  PLATFORM_ADMIN_EMAIL: (process.env.PLATFORM_ADMIN_EMAIL || '').trim().toLowerCase(),
 
   // Computed
   isDev: (process.env.NODE_ENV || 'development') === 'development',

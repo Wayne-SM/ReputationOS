@@ -219,14 +219,20 @@ export function FeedbackPage() {
                   htmlFor="feedbackText"
                   className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5"
                 >
-                  Your Feedback (Optional)
+                  {rating > 0 && rating <= 3
+                    ? 'How can we improve? (Optional)'
+                    : 'Your Feedback (Optional)'}
                 </label>
                 <textarea
                   id="feedbackText"
                   rows={3}
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder="Tell us what you loved or how we can improve..."
+                  placeholder={
+                    rating > 0 && rating <= 3
+                      ? 'Tell us what fell short and how we can make it right for you...'
+                      : 'Tell us what you loved or how we can improve...'
+                  }
                   className="input resize-none py-2.5"
                   disabled={isSubmitting}
                 />
@@ -301,7 +307,7 @@ export function FeedbackPage() {
               </button>
             </form>
           ) : (
-            /* ── POST-SUBMISSION STATE (NO REVIEW GATING) ────── */
+            /* ── POST-SUBMISSION STATE (ZERO REVIEW GATING) ────── */
             <div className="text-center space-y-6 py-2">
               <div
                 className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-white"
@@ -318,30 +324,48 @@ export function FeedbackPage() {
                 </svg>
               </div>
 
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">
-                  {business.feedbackThankYouText || 'Thank you for your feedback!'}
-                </h2>
-                <p className="text-xs text-gray-500 mt-1">
-                  Your feedback helps us continuously improve our service.
-                </p>
-              </div>
+              {rating >= 4 ? (
+                /* Positive Feedback Response */
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {business.feedbackThankYouText || 'Thank you for your fantastic feedback!'}
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+                    We're thrilled you had a great experience with us. It means the world to our team!
+                  </p>
+                </div>
+              ) : (
+                /* Lower Rating Empathetic Recovery Response */
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    Thank you for your honest feedback
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+                    We're truly sorry your experience wasn't what you expected. Your notes have been shared directly with management so we can make this right.
+                  </p>
+                </div>
+              )}
 
-              {/* UNIVERSAL GOOGLE REVIEW CTA (NO GATING) */}
-              {/* Every customer has access to Google review regardless of rating */}
+              {/* UNIVERSAL GOOGLE REVIEW CTA (ZERO GATING — VISIBLE FOR ALL RATINGS) */}
               {googleReviewUrl && (
                 <div className="pt-4 border-t border-gray-100 space-y-3">
                   <p className="text-xs font-medium text-gray-600">
-                    Would you also like to share your review publicly on Google?
+                    {rating >= 4
+                      ? 'Would you take 30 seconds to share your positive experience on Google?'
+                      : 'You are also welcome to share your public review on Google:'}
                   </p>
 
                   <button
                     type="button"
                     onClick={handleGoogleClick}
-                    className="w-full py-3 px-4 rounded-xl bg-white border border-gray-300 text-gray-800 font-semibold text-sm shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all flex items-center justify-center gap-2.5 active:scale-95"
+                    className={`w-full py-3 px-4 rounded-xl font-semibold text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all flex items-center justify-center gap-2.5 active:scale-95 ${
+                      rating >= 4
+                        ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+                        : 'bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:ring-gray-400'
+                    }`}
                   >
                     {/* Google Colorful G Icon */}
-                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path
                         fill="#4285F4"
                         d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.14z"
@@ -359,7 +383,11 @@ export function FeedbackPage() {
                         d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                       />
                     </svg>
-                    <span>{business.googleReviewCtaText || 'Share your experience on Google'}</span>
+                    <span>
+                      {rating >= 4
+                        ? (business.googleReviewCtaText || 'Share Your Review on Google')
+                        : 'Review on Google'}
+                    </span>
                   </button>
 
                   {hasClickedGoogle && (

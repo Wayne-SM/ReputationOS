@@ -10,6 +10,7 @@ import {
   reviewSources,
 } from '../db/schema.js';
 import { createSession } from '../lib/session.js';
+import { env } from '../lib/env.js';
 import type { RegisterInput, LoginInput } from '../lib/validation.js';
 
 // ── Password Hashing (Node.js crypto.scrypt) ────────────────
@@ -93,6 +94,10 @@ export async function registerUser(input: RegisterInput) {
     slug = `${slug}-${crypto.randomBytes(3).toString('hex')}`;
   }
 
+  const isPlatformAdmin = Boolean(
+    env.PLATFORM_ADMIN_EMAIL && input.email.toLowerCase() === env.PLATFORM_ADMIN_EMAIL,
+  );
+
   // Create user
   const [user] = await db
     .insert(users)
@@ -100,13 +105,14 @@ export async function registerUser(input: RegisterInput) {
       email: input.email,
       passwordHash,
       name: input.name,
+      isPlatformAdmin,
     })
-    .returning({ id: users.id, email: users.email, name: users.name });
+    .returning({ id: users.id, email: users.email, name: users.name, isPlatformAdmin: users.isPlatformAdmin });
 
-  // Create business
+  // Create business (starts as PENDING per owner-controlled SaaS model)
   const [business] = await db
     .insert(businesses)
-    .values({ name: input.businessName, slug })
+    .values({ name: input.businessName, slug, status: 'PENDING' })
     .returning();
 
   // Create business member (owner)
@@ -170,7 +176,12 @@ export async function loginUser(input: LoginInput) {
   const session = await createSession(user.id);
 
   return {
-    user: { id: user.id, email: user.email, name: user.name },
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isPlatformAdmin: user.isPlatformAdmin,
+    },
     business: membership?.business ?? null,
     role: membership?.role ?? null,
     session,

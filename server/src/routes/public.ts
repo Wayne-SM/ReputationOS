@@ -40,14 +40,15 @@ router.get('/r/:businessSlug', async (req, res) => {
         description: businesses.description,
         logoUrl: businesses.logoUrl,
         accentColor: businesses.accentColor,
+        status: businesses.status,
         isActive: businesses.isActive,
       })
       .from(businesses)
       .where(eq(businesses.slug, businessSlug))
       .limit(1);
 
-    if (!biz || !biz.isActive) {
-      res.status(404).json({ error: 'Business not found' });
+    if (!biz || (biz.status !== 'ACTIVE' && !biz.isActive)) {
+      res.status(404).json({ error: 'Business not found or inactive' });
       return;
     }
 
@@ -57,11 +58,9 @@ router.get('/r/:businessSlug', async (req, res) => {
       .where(eq(businessSettings.businessId, biz.id))
       .limit(1);
 
-    // Track page view event
-    const source = (req.query['source'] as string) || 'direct';
-    const validSource = ['reception', 'instagram', 'whatsapp', 'direct'].includes(source)
-      ? source
-      : 'direct';
+    // Track page view event (strictly reception vs instagram)
+    const rawSource = req.query['source'] as string;
+    const validSource = rawSource === 'instagram' ? 'instagram' : 'reception';
 
     await db.insert(analyticsEvents).values({
       businessId: biz.id,
@@ -105,13 +104,13 @@ router.post('/r/:businessSlug/feedback', feedbackLimiter, async (req, res) => {
     }
 
     const [biz] = await db
-      .select({ id: businesses.id, isActive: businesses.isActive })
+      .select({ id: businesses.id, status: businesses.status, isActive: businesses.isActive })
       .from(businesses)
       .where(eq(businesses.slug, businessSlug))
       .limit(1);
 
-    if (!biz || !biz.isActive) {
-      res.status(404).json({ error: 'Business not found' });
+    if (!biz || (biz.status !== 'ACTIVE' && !biz.isActive)) {
+      res.status(404).json({ error: 'Business not found or inactive' });
       return;
     }
 

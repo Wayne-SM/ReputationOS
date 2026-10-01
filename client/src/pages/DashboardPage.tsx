@@ -78,6 +78,14 @@ export function DashboardPage() {
             >
               Settings
             </Link>
+            {user?.isPlatformAdmin && (
+              <Link
+                to="/admin"
+                className="text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2.5 py-1 rounded-lg transition-colors"
+              >
+                Admin Portal
+              </Link>
+            )}
             <button
               onClick={() => logout()}
               className="btn-secondary text-xs py-1.5 px-3 ml-2"
@@ -139,15 +147,55 @@ export function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* ── KPI METRIC CARDS (The 7 MVP Metrics) ───────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* 1. Reception Scans */}
+            {/* ── KPI METRIC CARDS (The MVP Telemetry Metrics) ───────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {/* 1. Google Profile Score */}
+              <div className="card space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between text-gray-500">
+                  <span className="text-xs font-semibold uppercase tracking-wider">
+                    Google Rating
+                  </span>
+                  <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                  {metrics?.googleRating ? `${metrics.googleRating} ★` : '—'}
+                </div>
+                <p className="text-xs text-gray-500">
+                  {metrics?.googleReviewCount ? `${metrics.googleReviewCount} reviews on Google` : 'Google profile'}
+                </p>
+              </div>
+
+              {/* 2. Total Feedback */}
+              <div className="card space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between text-gray-500">
+                  <span className="text-xs font-semibold uppercase tracking-wider">
+                    Total Feedback
+                  </span>
+                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                  {metrics?.totalFeedback ?? 0}
+                </div>
+                <p className="text-xs text-gray-500">
+                  {metrics?.averageRating ? `${metrics.averageRating} ★ average score` : 'No reviews recorded yet'}
+                </p>
+              </div>
+
+              {/* 3. Reception Scans */}
               <div className="card space-y-2 relative overflow-hidden">
                 <div className="flex items-center justify-between text-gray-500">
                   <span className="text-xs font-semibold uppercase tracking-wider">
                     Reception Scans
                   </span>
-                  <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                  <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
@@ -157,11 +205,11 @@ export function DashboardPage() {
                   {metrics?.receptionScans ?? 0}
                 </div>
                 <p className="text-xs text-gray-500">
-                  In-person counter QR code scans
+                  In-person counter QR scans
                 </p>
               </div>
 
-              {/* 2. Instagram Visits */}
+              {/* 4. Instagram Visits */}
               <div className="card space-y-2 relative overflow-hidden">
                 <div className="flex items-center justify-between text-gray-500">
                   <span className="text-xs font-semibold uppercase tracking-wider">
@@ -181,27 +229,7 @@ export function DashboardPage() {
                 </p>
               </div>
 
-              {/* 3. Feedback Submissions */}
-              <div className="card space-y-2 relative overflow-hidden">
-                <div className="flex items-center justify-between text-gray-500">
-                  <span className="text-xs font-semibold uppercase tracking-wider">
-                    Total Feedback
-                  </span>
-                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-3xl font-extrabold text-gray-900 tracking-tight">
-                  {metrics?.totalFeedback ?? 0}
-                </div>
-                <p className="text-xs text-gray-500">
-                  {metrics?.averageRating ? `${metrics.averageRating} ★ average customer score` : 'No reviews recorded yet'}
-                </p>
-              </div>
-
-              {/* 4. Google Review Clicks */}
+              {/* 5. Google Review Clicks */}
               <div className="card space-y-2 relative overflow-hidden">
                 <div className="flex items-center justify-between text-gray-500">
                   <span className="text-xs font-semibold uppercase tracking-wider">
@@ -213,11 +241,11 @@ export function DashboardPage() {
                     </svg>
                   </div>
                 </div>
-                <div className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                <div className="text-3xl font-extrabold text-green-600 tracking-tight">
                   {metrics?.googleReviewClicks ?? 0}
                 </div>
                 <p className="text-xs text-gray-500">
-                  Customers channeled to Google profile
+                  Customers sent to Google
                 </p>
               </div>
             </div>
